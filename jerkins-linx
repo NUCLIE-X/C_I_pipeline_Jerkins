@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Setup') {
+            steps {
+                echo 'Installing dependencies...'
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                echo 'Running ML pipeline...'
+                sh 'python3 ml_pipeline.py'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline SUCCESS - Model validated'
+        }
+        failure {
+            echo 'Pipeline FAILED - Check logs'
+        }
+    }
+}
