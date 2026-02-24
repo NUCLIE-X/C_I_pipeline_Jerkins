@@ -1,0 +1,6 @@
+git init
+git add .
+git commit -m "Initial ML CI pipeline setup"
+git branch -M main
+git remote add origin https://github.com/ramjit-exam/ramjit-exam..git
+git push -u origin main
