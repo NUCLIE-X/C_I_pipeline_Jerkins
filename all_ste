@@ -1,0 +1,211 @@
+ML CI PIPELINE PRACTICAL – COMPLETE GUIDE
+
+===========================================
+PROJECT GOAL
+===========================================
+
+This practical demonstrates Continuous Integration (CI) using Jenkins.
+Whenever code is pushed to GitHub, Jenkins automatically:
+
+1. Pulls the code
+2. Installs required dependencies
+3. Runs the ML script
+4. Validates model output
+5. Marks build SUCCESS or FAILURE
+
+
+===========================================
+PROJECT STRUCTURE
+===========================================
+
+ramjit-exam/
+│
+├── ml_pipeline.py
+├── requirements.txt
+├── Jenkinsfile
+├── README.md
+
+
+===========================================
+STEP 1 – CREATE LOCAL PROJECT FOLDER
+===========================================
+
+Create a folder:
+
+ramjit-exam
+
+Inside it create:
+
+ml_pipeline.py
+requirements.txt
+Jenkinsfile
+README.md
+
+
+===========================================
+STEP 2 – ml_pipeline.py CONTENT
+===========================================
+
+import pickle
+import sys
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+print("=== ML CI Pipeline ===")
+
+# Create dataset
+X = np.array([[1], [2], [3]])
+y = np.array([2, 4, 6])
+
+# Train model
+model = LinearRegression()
+model.fit(X, y)
+print("Model trained")
+
+# Save model
+with open("model.pkl", "wb") as f:
+    pickle.dump(model, f)
+print("Model saved")
+
+# Validate model
+prediction = model.predict([[4]])[0]
+print(f"Prediction: {prediction} (Expected: 8.0)")
+
+if abs(prediction - 8.0) < 0.1:
+    print("VALIDATION PASSED")
+    sys.exit(0)
+else:
+    print("VALIDATION FAILED")
+    sys.exit(1)
+
+
+===========================================
+STEP 3 – requirements.txt CONTENT
+===========================================
+
+numpy
+scikit-learn
+
+
+===========================================
+STEP 4 – Jenkinsfile CONTENT
+===========================================
+
+(LINUX VERSION)
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Setup') {
+            steps {
+                echo 'Installing dependencies...'
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                echo 'Running ML pipeline...'
+                sh 'python3 ml_pipeline.py'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline SUCCESS - Model validated'
+        }
+        failure {
+            echo 'Pipeline FAILED - Check logs'
+        }
+    }
+}
+
+
+(WINDOWS VERSION – Use only if Jenkins runs on Windows)
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Setup') {
+            steps {
+                echo 'Installing dependencies...'
+                bat 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                echo 'Running ML pipeline...'
+                bat 'python ml_pipeline.py'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline SUCCESS - Model validated'
+        }
+        failure {
+            echo 'Pipeline FAILED - Check logs'
+        }
+    }
+}
+
+
+===========================================
+STEP 5 – GIT COMMANDS TO PUSH PROJECT
+===========================================
+
+git init
+git add .
+git commit -m "Initial ML CI pipeline setup"
+git branch -M main
+git remote add origin https://github.com/ramjit-exam/ramjit-exam..git
+git push -u origin main
+
+
+===========================================
+STEP 6 – JENKINS LAB STEPS
+===========================================
+
+1. Open Jenkins in browser
+2. Click New Item
+3. Enter name: CI-pipeline-practical
+4. Select Pipeline
+5. Click OK
+6. In Pipeline section:
+   - Definition → Pipeline script from SCM
+   - SCM → Git
+7. Repository URL:
+   https://github.com/ramjit-exam/ramjit-exam..git
+8. Branch: */main
+9. Script Path: Jenkinsfile
+10. Click Save
+11. Click Build Now
+12. Open Console Output
+
+Expected Result:
+Finished: SUCCESS
+
+
+===========================================
+IMPORTANT VIVA POINTS
+===========================================
+
+1. CI stands for Continuous Integration.
+2. Jenkins is an automation server.
+3. requirements.txt installs dependencies.
+4. Jenkinsfile defines pipeline stages.
+5. sys.exit(0) = success.
+6. sys.exit(1) = failure.
+7. Model validation ensures correctness before marking build success.
+
+
+===========================================
+END OF PRACTICAL
+===========================================
+
+This project demonstrates automated ML model validation using Jenkins CI pipeline.
